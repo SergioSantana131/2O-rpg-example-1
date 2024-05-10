@@ -1,6 +1,3 @@
-//
-// Created by Victor Navarro on 19/02/24.
-//
 
 #ifndef RPG_UTILS_H
 #define RPG_UTILS_H
@@ -14,4 +11,4 @@ namespace combat_utils {
     }
 }
 
-#endif //RPG_UTILS_H
+#endif

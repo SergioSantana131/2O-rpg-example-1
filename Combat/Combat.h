@@ -1,9 +1,7 @@
 //
-// Created by Victor Navarro on 19/02/24.
-//
 
-#ifndef RPG_COMBAT_H
-#define RPG_COMBAT_H
+#ifndef Jueguito_COMBAT_H
+#define Jueguito_H
 #pragma once
 #include "../Character/Character.h"
 #include "../Player/Player.h"
@@ -12,16 +10,18 @@
 #include <vector>
 #include <string>
 #include <queue>
+#include <Combat.h>
 
 using namespace std;
-
+class Enemy;
+class player;
 class Combat {
 private:
-    //Realmente sigo necesitando este vector?
+
     vector<Character*> participants;
     vector<Player*> teamMembers;
     vector<Enemy*> enemies;
-    //Priority queue de acciones
+
     priority_queue<Action> actions;
 
     void prepareCombat();
@@ -32,6 +32,7 @@ private:
     void checkParticipantStatus(Character* participant);
     void checkForFlee(Character* character);
 
+
 public:
     Combat(vector<Character*> _participants);
     Combat(vector<Player*> _teamMembers, vector<Enemy*> _enemies);
@@ -39,7 +40,9 @@ public:
     void addParticipant(Character *participant);
     void doCombat();
     string participantsToString();
+
+
+    void increaseEnemyStats(int points);
 };
 
-
-#endif //RPG_COMBAT_H
+#endif

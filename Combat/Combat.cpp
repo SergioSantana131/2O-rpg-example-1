@@ -1,6 +1,5 @@
 // Created by Victor Navarro on 19/02/24.
 //
-
 #include "Combat.h"
 #include <iostream>
 #include <algorithm>
@@ -46,25 +45,66 @@ void Combat::prepareCombat() {
     sort(participants.begin(), participants.end(), compareSpeed);
 }
 
+
+
 void Combat::doCombat() {
     prepareCombat();
 
-    while(enemies.size() != 0 && teamMembers.size() != 0) {
+    // Este while es una iteración por ronda
+    while (enemies.size() != 0 && teamMembers.size() != 0) {
         registerActions();
         executeActions();
     }
+    // Verifica quién ganó el combate
+    if (enemies.size() == 0) {
+        cout << "You have won the combat." << endl;
 
-    if(enemies.size() == 0) {
-        cout<<"||||Has ganado el combate||||"<<endl;
+        // Iterar a través de la lista de enemigos
+        for (Enemy* enemy : enemies) {
+            // Verificar si el enemigo está muerto
+            if (enemy->health <= 0) {
+                // Imprime la experiencia del enemigo derrotado
+                cout << "Enemy had " << enemy->experience << " experience." << endl;
+            }
+        }
+        // Iterar a través de todos los miembros del equipo
+        for (Player* player : teamMembers) {
+            // Imprimir la experiencia total ganada por el jugador
+            cout << "Player " << player->getName() << " has won " << player->experience << " experience." << endl;
+        }
+    } else {
+        cout << "The enemies have won the combat - Game Over." << endl;
     }
-    else {
-        cout<<"El enemigo ha ganado el combate |||Game Over|||"<<endl;
+
+
+    //IMPRIMIR Atributos con el nivel aumentadp
+    for (Player *player: teamMembers) {
+        cout << "Level up " << endl;
+        cout << player->health << endl;
+        cout << player->attack << endl;
+        cout << player->defense << endl;
+    }
+}
+
+
+
+void Combat::increaseEnemyStats(int points) {
+    // DAR LOS PUNTOS A LOS ENEMIGOS
+    for (Enemy *enemy: enemies) {
+
+        // Aumentar atributos
+        int healthIncrease = points / 3;
+        int attackIncrease = points / 3;
+        int defenseIncrease = points - healthIncrease - attackIncrease;
+        enemy->health += healthIncrease;
+        enemy->attack += attackIncrease;
+        enemy->defense += defenseIncrease;
     }
 }
 
 void Combat::registerActions() {
     vector<Character*>::iterator participant = participants.begin();
-
+    //Una iteracion por turno de cada participante (player y enemigo)
     while(participant != participants.end()) {
         Character* target = nullptr;
         Action currentAction;
@@ -80,14 +120,24 @@ void Combat::registerActions() {
 }
 
 void Combat::executeActions() {
-
+    //Aqui se ejecutan las acciones
     while(!actions.empty()) {
         Action currentAction = actions.top();
         currentAction.action();
         checkForFlee(currentAction.subscriber);
-        checkParticipantStatus(currentAction.subscriber);
-        checkParticipantStatus(currentAction.target);
-        actions.pop();
+        if(currentAction.target!= nullptr)
+        {
+            checkParticipantStatus(currentAction.subscriber);
+            checkParticipantStatus(currentAction.target);
+            actions.pop();
+        }
+        else{
+            while (!actions.empty()) {
+                actions.pop();
+            }
+        }
+
+
     }
 }
 
@@ -104,14 +154,17 @@ void Combat::checkParticipantStatus(Character* participant) {
 }
 
 void Combat::checkForFlee(Character *character) {
+    // Verificar si  murio para que no escape una vez ya muerto
+    if (character->getHealth() <= 0) {
+        return; //
+    }
     bool fleed = character->hasFleed();
-    if(fleed) {
-        if(character->getIsPlayer()) {
-            cout<<"Has abandonado el combate ||No soportaste panzona||"<<endl;
+    if (fleed) {
+        if (character->getIsPlayer()) {
+            cout << "Has huido del combate." << endl;
             teamMembers.erase(remove(teamMembers.begin(), teamMembers.end(), character), teamMembers.end());
-        }
-        else {
-            cout<<character->getName()<<" El enemigo ha dejado el combate"<<endl;
+        } else {
+            cout << character->getName() << " ha huido del combate" << endl;
             enemies.erase(remove(enemies.begin(), enemies.end(), character), enemies.end());
         }
         participants.erase(remove(participants.begin(), participants.end(), character), participants.end());
@@ -121,7 +174,7 @@ void Combat::checkForFlee(Character *character) {
 string Combat::participantsToString() {
     string result = "";
     for (int i = 0; i < participants.size(); i++) {
-        result += participants[i]->toString() + "\n";
+        result += participants[i]->toString()  + "\n";
     }
     return result;
 }

@@ -1,22 +1,20 @@
-//
-// Created by Victor Navarro on 13/02/24.
-//
+
 #include "Player.h"
 #include <iostream>
 #include "../Utils.h"
-
-
+#include <cstring>
+#include "Combat.h"
 using namespace std;
 using namespace combat_utils;
+
 
 bool compareSpeed(Enemy *a, Enemy *b) {
     return a->getSpeed() > b->getSpeed();
 }
 
-Player::Player(char name[30], int health, int attack, int defense, int speed) : Character( name, health, attack, defense,
-                                                                                        speed, true) {
-    experience = 0;
-    level = 1;
+//costructor
+Player::Player(char name[30], int health, int attack, int defense, int speed, char arm[20], int experience, int level) : Character(name, health, attack, defense, speed, true, arm, experience, level) {
+
 }
 
 void Player::doAttack(Character *target) {
@@ -27,13 +25,14 @@ void Player::doAttack(Character *target) {
 
 void Player::takeDamage(int damage) {
     setHealth(health - damage);
-    cout << "You have taken " << damage << " damage" << endl;
+    cout << "HAS MATADO " << damage << " Dano con un "<< getArm() << endl;
     if (health <= 0) {
-        cout << "You have died" << endl;
+        cout << "Has muerto JUEGO TERMINADO " << endl;
     }
 }
 
-void Player::flee(vector<Enemy *> enemies) {
+
+void Player::flee(vector<Enemy*> enemies) {
     std::sort(enemies.begin(), enemies.end(), compareSpeed);
     Enemy *fastestEnemy = enemies[0];
     bool fleed = false;
@@ -42,57 +41,77 @@ void Player::flee(vector<Enemy *> enemies) {
     } else {
         srand(time(NULL));
         int chance = rand() % 100;
-        cout << "chance: " << chance << endl;
-        fleed = chance > 99;
+        cout << "chence de huir " << chance << endl;
+        if (fleed = chance > 90) {
+            fleed = true;
+        } else {
+            cout << "No te puedes ir volando, lUCHA!! " << endl;
+        }
     }
 
     this->fleed = fleed;
+
 }
 
 void Player::emote() {
-    cout << "Jokes on you" << endl;
+    cout<<"Se burla de ti" << endl;
 }
 
-void Player::levelUp() {
-    level++;
-    setHealth(getHealth() + 10);
-    setAttack(getAttack() + 5);
-    setDefense(getDefense() + 5);
-    setSpeed(getSpeed() + 5);
-}
 
-void Player::gainExperience(int exp) {
-    experience += exp;
-    if (experience >= 100) {
-        levelUp();
-        experience = 0;
-    }
-}
-
-Character *Player::getTarget(vector<Enemy *> enemies) {
-    cout << "Choose a target" << endl;
+Character* Player::getTarget(vector<Enemy *> enemies) {
+        cout << "Elige un objetivo" << endl;
     int targetIndex = 0;
-    for (int i = 0; i < enemies.size(); i++) {
+    for(int i = 0; i < enemies.size(); i++) {
         cout << i << ". " << enemies[i]->getName() << endl;
     }
     cin >> targetIndex;
-    //TODO: Add input validation
+
     return enemies[targetIndex];
 }
 
-Action Player::takeAction(vector<Enemy *> enemies) {
-    int option = 0;
-    cout << "Choose an action" << endl;
-    cout << "1. Attack" << endl;
-    cout << "2. Flee" << endl;
-    cin >> option;
-    Character *target = nullptr;
+void Player::gainExperience(Enemy* enemy) {
+    // Saber si el enemigo murio para tomar su experiencia
+    if (enemy && enemy->health <= 0) {
+        // Sumar la experiencia obtenida por derrotar al enemigo
+        experience += enemy->experience;
+        // Llamar a la función LevelUp para manejar el nivel y la experiencia restante
+        LevelUp();
+    }
+}
 
-    //Esta variable guarda
-    //1. Que voy a hacer?
-    //2. Con que velocidad/prioridad?
+void Player::LevelUp() {
+    // Saber si el jugador tiene 100 o mas de experiencia para aumentar el Level
+    while (experience >= 100) {
+        level++;
+        // Reiniciar
+        experience -= 100;
+
+        // Atributos aumentados
+        int healthGain = 10;
+        int attackGain = 5;
+        int defenseGain = 5;
+        health += healthGain;
+        attack += attackGain;
+        defense += defenseGain;
+        // Puntos ganados TOTAL
+        int totalPointsGained = healthGain + attackGain + defenseGain;
+    }
+}
+
+
+Action Player::takeAction(vector<Enemy*>enemies) {
+    int option = 0;
+    cout<<"////////////////"<<endl;
+    cout<<"Elige una accion"<<endl;
+    cout<<"1. Ataque"<<endl;
+    cout<<"2. Volar"<<endl;
+
+    cin >> option;
+    Character* target = nullptr;
+
+
     Action myAction;
-    //2.
+
     myAction.speed = this->getSpeed();
     myAction.subscriber = this;
 
@@ -111,9 +130,10 @@ Action Player::takeAction(vector<Enemy *> enemies) {
             };
             break;
         default:
-            cout << "Invalid option" << endl;
+            cout << "Opción inválida" << endl;
             break;
     }
+
 
     return myAction;
 }

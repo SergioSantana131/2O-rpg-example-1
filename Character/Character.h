@@ -1,43 +1,40 @@
 //
-// Created by Victor Navarro on 13/02/24.
+
 //
 
-#ifndef RPG_CHARACTER_H
-#define RPG_CHARACTER_H
+#include <cstring>
+
+#ifndef Jueguito_CHARACTER_H
+#define Jueguito_CHARACTER_H
 #include<string>
 #include "../Combat/Action.h"
-#define RESET   "\033[0m"
-#define RED     "\033[31m"
-#define GREEN   "\033[32m"
-#define YELLOW  "\033[33m"
-#define BLUE    "\033[34m"
-#define MAGENTA "\033[35m"
-#define CYAN    "\033[36m"
-#define BLINK   "\033[5m"
-#define STYLE   "\033[3m"
-#define GRAY    "\033[90m"
-#define BOLD    "\033[1m"
-#define UNDERLINE "\033[4m"
+#include <vector>
+#include <cstring>
 
 using namespace std;
 
+//atributos
 class Character {
-protected:
-    char name[30] = { 'U','n','n','a','m','e','d' };
+public:
+    char name[30];
     int health;
     int attack;
     int defense;
     int speed;
     bool isPlayer;
     bool fleed;
+    char arm[20];
+    int experience;
+    int level;
 
 public:
-    Character(char[30], int, int, int, int, bool);
+    Character(char[30], int, int, int, int, bool, char[20], int, int );
 
     virtual void doAttack(Character *target) = 0;
     virtual void takeDamage(int damage) = 0;
 
-    void setName(char [30]);
+
+    void setName(char[30]);
     char* getName();
     void setHealth(int);
     int getHealth();
@@ -47,10 +44,13 @@ public:
     int getDefense();
     void setSpeed(int);
     int getSpeed();
-    string toString();
+    char toString(); //que diablos hace? MUESTRA TODOS LOS DATOS?
     bool getIsPlayer();
     bool hasFleed();
+    void setArm(char[20]);
+    char* getArm();
+    int getExperience();
+    int getLevel();
 };
 
-
-#endif //RPG_CHARACTER_H
+#endif
